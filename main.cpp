@@ -6,7 +6,21 @@
 #include "map.hpp"
 #include "apple.hpp"
 
-std::vector<int> compose(Map &map, Snake &snake, Apple &apple){
+class DrawPoint(){
+	public:
+		DrawPoint() = delete;
+		DrawPoint(const int _x, const int _y, const int _ascii);
+		
+		int* getCoordinates() const;
+		void setCoordinates();
+		void setAsciiSymbol();
+		
+	private:
+		int* coordinates;
+		int  symbol;
+};
+
+std::vector<DrawPoint> compose(Map &map, Snake &snake, Apple &apple){
 	
 	
 	
@@ -25,7 +39,7 @@ int main(int argc, char** argv) {
 	
 	while(!::gameover){
 		/*Compose all objects coordinates in one vector of coordinates*/
-		std::vector<int> matrix = compose(&map, &snake, &apple);
+		std::vector<DrawPoint> matrix = compose(&map, &snake, &apple);
 		
 		/*Draw ascii by coordinates of matrix*/
 		draw_frame(&matrix);
