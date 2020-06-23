@@ -5,39 +5,8 @@
 #include "snake.hpp"
 #include "map.hpp"
 #include "apple.hpp"
+#include "frame.hpp"
 
-class Frame{
-	private:
-		class DrawPoint{
-			public:
-				DrawPoint() = delete;
-				DrawPoint(const int _x, const int _y, const int _ascii);
-				
-				int* getCoordinates() const;
-				void setCoordinates(const int _x, const int _y);
-				void setAsciiSymbol(const int _ascii);
-				
-			private:
-				int* cooridnates;
-				int symbol;
-				
-		};
-	public:
-		Frame();
-		Frame(const Map* _map, const Apple* _apple, const Snake* _snake);
-				
-		std::vector<DrawPoint> getMatrix() const;
-		void resetMatrix();
-		
-		static std::vector<DrawPoint> frame;
-};
-
-
-
-
-
-
-std::vector<Frame::DrawPoint> Frame::frame;
 static int gameover = 0;
 
 int main(int argc, char** argv) {
@@ -47,20 +16,22 @@ int main(int argc, char** argv) {
 	Apple apple(0, 10, 0, 10);
 	Frame frame(&map, &apple, &snake);
 	
-	std::thread thread(moving, &snake, &map, &apple);
+	std::cout << (char)42 << std::endl;
 	
-	while(!::gameover){
+	//std::thread thread(moving, &snake, &map, &apple);
+	
+	//while(!::gameover){
 		/*Reset of created matrix of all coordinates of all objects such as Map, Snake and Apple*/		
-		frame.resetMatrix();
+		//frame.resetMatrix();
 		
 		/*Draw ascii by coordinates of matrix*/
-		draw_frame(&frame);
+		//draw_frame(&frame);
 		
 		/*Start logic function which will check the all coordinates*/
-		logic();
-	}
+		//logic();
+	//}
 	
-	thread.join();
+	//thread.join();
 	
 	return 0;
 }
