@@ -1,43 +1,120 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <windows.h>
+
+#include <chrono>
+#include <thread>
 
 #include "snake.hpp"
 #include "map.hpp"
 #include "apple.hpp"
 #include "frame.hpp"
 
+
+#define min_x 0
+#define min_y 0
+#define max_x 20
+#define max_y 20
+#define part_of_snake 3
+
+/*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+COORD CursorPosition;
+static int gameover = 0;
+
+void gotoXY(int x, int y, char text){
+	CursorPosition.X = x;
+	CursorPosition.Y = y;
+	SetConsoleCursorPosition(console, CursorPosition);
+	std::cout << text;
+}
+
+void gotoXY(int x, int y){
+	CursorPosition.X = x;
+	CursorPosition.Y = y;
+	SetConsoleCursorPosition(console, CursorPosition);
+}
+
+
 void draw_frame(const Frame* frame){
 	for(int _iter=0; _iter < frame->getMatrix().size(); ++_iter){
-		std::cout << frame->getMatrix().at(_iter).getCoordinates()[0] << ", " <<  frame->getMatrix().at(_iter).getCoordinates()[1]  <<  ", " << (char)(frame->getMatrix().at(_iter).getAsciiSymbol()) << std::endl;
+		gotoXY(frame->getMatrix().at(_iter).getCoordinates()[0], frame->getMatrix().at(_iter).getCoordinates()[1], (char)(frame->getMatrix().at(_iter).getAsciiSymbol()));
 	}
 }
 
-static int gameover = 0;
+void logic(Map* _map, Apple* _apple, Snake* _snake){
+	
+	/*For checking board collision*/
+	if(_snake->getPositionOfSnakeParts(0)[0] == max_x-1 && _snake->getDirection() == Direction::__right__){
+		int _y = _snake->getPositionOfSnakeParts(0)[1];
+		_snake->setNewHeadPositionOfSnake(0, _y);
+		
+	}else if(_snake->getPositionOfSnakeParts(0)[0] == min_x+1 && _snake->getDirection() == Direction::__left__){
+		int _y = _snake->getPositionOfSnakeParts(0)[1];
+		_snake->setNewHeadPositionOfSnake(max_x-1, _y);
+		
+	}else if(_snake->getPositionOfSnakeParts(0)[1] == max_y-1 && _snake->getDirection() == Direction::__down__){
+		int _x = _snake->getPositionOfSnakeParts(0)[0];
+		_snake->setNewHeadPositionOfSnake(_x, 0);
+		
+	}else if(_snake->getPositionOfSnakeParts(0)[1] == min_y+1 && _snake->getDirection() == Direction::__up__){
+		int _x = _snake->getPositionOfSnakeParts(0)[0];
+		_snake->setNewHeadPositionOfSnake(_x, max_y-1);
+	}
+	
+	if(_snake->getPositionOfSnakeParts(0)[0] == _apple->getAppleCoordinations()[0] &&
+	   _snake->getPositionOfSnakeParts(0)[1] == _apple->getAppleCoordinations()[1]){
+	   	_snake->setNewSnakePart();
+	   	_apple->setNewAppleCoordinations();
+	   	_snake->setNewNumberOfEatenApples(1);
+	}
+	
+	for(int _iter_of_snake_part = 1; _iter_of_snake_part < _snake->body.size(); ++_iter_of_snake_part){
+		if(_snake->body.at(0).getCurrentPositionOfPart()[0] == _snake->body.at(_iter_of_snake_part).getCurrentPositionOfPart()[0] &&
+		   _snake->body.at(0).getCurrentPositionOfPart()[1] == _snake->body.at(_iter_of_snake_part).getCurrentPositionOfPart()[1]){
+		   	gameover = 1;
+		}
+	}
+	
+	
+}
+/*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+
+
 
 int main(int argc, char** argv) {
 	
-	Snake snake(3, Direction::__up__);
-	Map   map  (10, 10);
-	Apple apple(0, 10, 0, 10);
+	Snake snake(part_of_snake, Direction::__right__);
+	Map   map  (max_x, max_y);
+	Apple apple(min_x, max_x, min_y, max_y);
 	Frame frame(&map, &apple, &snake);
 	
-	//std::cout << (char)42 << std::endl;
+	apple.setNewAppleCoordinations(7, 4);
 	
-	//std::thread thread(moving, &snake, &map, &apple);
-	
-	//while(!::gameover){
-		/*Reset of created matrix of all coordinates of all objects such as Map, Snake and Apple*/		
+	while(!::gameover){
+		/*Clear console*/		
+		system("cls");
+		
+		/*Reset of created matrix of all coordinates of all objects such as Map, Snake and Apple*/
 		frame.resetMatrix();
 		
 		/*Draw ascii by coordinates of matrix*/
 		draw_frame(&frame);
 		
 		/*Start logic function which will check the all coordinates*/
-		//logic();
-	//}
+		logic(&map, &apple, &snake);
+		
+		/*Start moving of snake*/
+		snake.start();
+		
+		/*Frame per milliseconds*/
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
 	
-	//thread.join();
+	gotoXY(0, max_y+1);
+	
+	std::cout << "Game over ;)" << std::endl;
 	
 	return 0;
 }
