@@ -17,6 +17,7 @@ class Frame{
 				DrawPoint(const int _x, const int _y, const int _ascii);
 				
 				int* getCoordinates() const;
+				int  getAsciiSymbol() const;
 				void setCoordinates(const int _x, const int _y);
 				void setAsciiSymbol(const int _ascii);
 				
@@ -51,7 +52,7 @@ void inline Frame::setFrameMatrix(){
 		if(this->_snake->getSnakePart(_iter)->getIdOfPart() == 0){
 			Frame::frame.push_back(DrawPoint(this->_snake->getPositionOfSnakeParts(_iter)[0], this->_snake->getPositionOfSnakeParts(_iter)[1], 'O'));
 		}else{
-			Frame::frame.push_back(DrawPoint(this->_snake->getPositionOfSnakeParts(_iter)[0], this->_snake->getPositionOfSnakeParts(_iter)[1], '0'));
+			Frame::frame.push_back(DrawPoint(this->_snake->getPositionOfSnakeParts(_iter)[0], this->_snake->getPositionOfSnakeParts(_iter)[1], 'o'));
 		}
 	}
 }
@@ -92,6 +93,9 @@ void Frame::DrawPoint::setAsciiSymbol(const int _ascii){
 	this->symbol = _ascii;
 }
 
+int Frame::DrawPoint::getAsciiSymbol() const{
+	return (int)(this->symbol);
+}
 
 
 std::vector<Frame::DrawPoint> Frame::frame;
