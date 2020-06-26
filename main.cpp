@@ -16,7 +16,7 @@
 #define min_y 0
 #define max_x 20
 #define max_y 20
-#define part_of_snake 15
+#define part_of_snake 2
 
 #define KEY_UP 72
 #define KEY_DOWN 80
