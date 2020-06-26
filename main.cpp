@@ -16,7 +16,7 @@
 #define min_y 0
 #define max_x 20
 #define max_y 20
-#define part_of_snake 1
+#define part_of_snake 15
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -31,21 +31,21 @@ static bool up;
 void logic(Map* _map, Apple* _apple, Snake* _snake){
 	
 	/*For checking board collision*/
-	if(_snake->getPositionOfSnakeParts(0)[0] == max_x-1 && _snake->getDirection() == Direction::__right__){
+	if(_snake->getPositionOfSnakeParts(0)[0] == max_x && _snake->getDirection() == Direction::__right__){
 		int _y = _snake->getPositionOfSnakeParts(0)[1];
 		_snake->setNewHeadPositionOfSnake(-1, _y);
 		
-	}else if(_snake->getPositionOfSnakeParts(0)[0] == min_x && _snake->getDirection() == Direction::__left__){
+	}else if(_snake->getPositionOfSnakeParts(0)[0] == min_x-1 && _snake->getDirection() == Direction::__left__){
 		int _y = _snake->getPositionOfSnakeParts(0)[1];
-		_snake->setNewHeadPositionOfSnake(max_x, _y);
+		_snake->setNewHeadPositionOfSnake(max_x-1, _y);
 		
-	}else if(_snake->getPositionOfSnakeParts(0)[1] == max_y-1 && _snake->getDirection() == Direction::__down__){
+	}else if(_snake->getPositionOfSnakeParts(0)[1] == max_y && _snake->getDirection() == Direction::__down__){
 		int _x = _snake->getPositionOfSnakeParts(0)[0];
 		_snake->setNewHeadPositionOfSnake(_x, -1);
 		
-	}else if(_snake->getPositionOfSnakeParts(0)[1] == min_y && _snake->getDirection() == Direction::__up__){
+	}else if(_snake->getPositionOfSnakeParts(0)[1] == min_y-1 && _snake->getDirection() == Direction::__up__){
 		int _x = _snake->getPositionOfSnakeParts(0)[0];
-		_snake->setNewHeadPositionOfSnake(_x, max_y);
+		_snake->setNewHeadPositionOfSnake(_x, max_y-1);
 	}
 	
 	if(_snake->getPositionOfSnakeParts(0)[0] == _apple->getAppleCoordinations()[0] &&
@@ -103,10 +103,12 @@ int main(int argc, char** argv) {
 		
 		//moving(&snake);
 		/*Start logic function which will check the all coordinates*/
-		logic(&map, &apple, &snake);
+	//	logic(&map, &apple, &snake);
 		
 		/*Start moving of snake*/
 		snake.start();
+		
+		logic(&map, &apple, &snake);
 		
 		/*Frame per milliseconds*/
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
