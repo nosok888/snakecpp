@@ -3,6 +3,23 @@
 	
 	#include <vector>
 
+
+HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+COORD CursorPosition;
+
+void gotoXY(int x, int y, char text){
+	CursorPosition.X = x;
+	CursorPosition.Y = y;
+	SetConsoleCursorPosition(console, CursorPosition);
+	std::cout << text;
+}
+
+void gotoXY(int x, int y){
+	CursorPosition.X = x;
+	CursorPosition.Y = y;
+	SetConsoleCursorPosition(console, CursorPosition);
+}
+
 class Frame{
 	private:
 		void inline setFrameMatrix();
@@ -31,6 +48,7 @@ class Frame{
 				
 		std::vector<DrawPoint> getMatrix() const;
 		void resetMatrix();
+		void draw();
 		
 		static std::vector<DrawPoint> frame;
 };
@@ -69,6 +87,12 @@ void Frame::resetMatrix(){
 std::vector<Frame::DrawPoint> Frame::getMatrix() const{
 	return this->frame;
 }
+
+void Frame::draw(){
+	for(int _iter=0; _iter < this->getMatrix().size(); ++_iter){
+		gotoXY(this->getMatrix().at(_iter).getCoordinates()[0], this->getMatrix().at(_iter).getCoordinates()[1], (char)(this->getMatrix().at(_iter).getAsciiSymbol()));
+	}
+}
 /*----------------------------------------------------------------------------*/
 
 
@@ -96,7 +120,6 @@ void Frame::DrawPoint::setAsciiSymbol(const int _ascii){
 int Frame::DrawPoint::getAsciiSymbol() const{
 	return (int)(this->symbol);
 }
-
 
 std::vector<Frame::DrawPoint> Frame::frame;
 

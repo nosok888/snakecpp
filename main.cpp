@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include <windows.h>
+#include <conio.h>
 
 #include <chrono>
 #include <thread>
@@ -11,37 +12,21 @@
 #include "apple.hpp"
 #include "frame.hpp"
 
-
 #define min_x 0
 #define min_y 0
 #define max_x 20
 #define max_y 20
-#define part_of_snake 3
+#define part_of_snake 1
 
-/*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-COORD CursorPosition;
-static int gameover = 0;
-
-void gotoXY(int x, int y, char text){
-	CursorPosition.X = x;
-	CursorPosition.Y = y;
-	SetConsoleCursorPosition(console, CursorPosition);
-	std::cout << text;
-}
-
-void gotoXY(int x, int y){
-	CursorPosition.X = x;
-	CursorPosition.Y = y;
-	SetConsoleCursorPosition(console, CursorPosition);
-}
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
 
 
-void draw_frame(const Frame* frame){
-	for(int _iter=0; _iter < frame->getMatrix().size(); ++_iter){
-		gotoXY(frame->getMatrix().at(_iter).getCoordinates()[0], frame->getMatrix().at(_iter).getCoordinates()[1], (char)(frame->getMatrix().at(_iter).getAsciiSymbol()));
-	}
-}
+static int gameover;
+static bool __key__[256];
+static bool up;
 
 void logic(Map* _map, Apple* _apple, Snake* _snake){
 	
@@ -73,15 +58,29 @@ void logic(Map* _map, Apple* _apple, Snake* _snake){
 	for(int _iter_of_snake_part = 1; _iter_of_snake_part < _snake->body.size(); ++_iter_of_snake_part){
 		if(_snake->body.at(0).getCurrentPositionOfPart()[0] == _snake->body.at(_iter_of_snake_part).getCurrentPositionOfPart()[0] &&
 		   _snake->body.at(0).getCurrentPositionOfPart()[1] == _snake->body.at(_iter_of_snake_part).getCurrentPositionOfPart()[1]){
-		   	gameover = 1;
+		    gameover = 1;
 		}
 	}
-	
-	
 }
-/*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 
-
+void moving(Snake* _snake){
+	int c = 0;
+    while(!::gameover)
+    {
+        c = 0;
+		c = getch();
+		
+        if(c == KEY_UP && _snake->getDirection() != Direction::__down__){
+			_snake->setNewHeadDirectionOfSnake(Direction::__up__);
+		}else if(c == KEY_DOWN && _snake->getDirection() != Direction::__up__){
+			_snake->setNewHeadDirectionOfSnake(Direction::__down__);
+		}else if(c == KEY_LEFT && _snake->getDirection() != Direction::__right__){
+			_snake->setNewHeadDirectionOfSnake(Direction::__left__);
+		}else if(c == KEY_RIGHT && _snake->getDirection() != Direction::__left__){
+			_snake->setNewHeadDirectionOfSnake(Direction::__right__);
+		}
+    }
+}
 
 int main(int argc, char** argv) {
 	
@@ -90,8 +89,8 @@ int main(int argc, char** argv) {
 	Apple apple(min_x, max_x, min_y, max_y);
 	Frame frame(&map, &apple, &snake);
 	
-	apple.setNewAppleCoordinations(7, 4);
-	
+	std::thread thread(moving, &snake);
+
 	while(!::gameover){
 		/*Clear console*/		
 		system("cls");
@@ -100,8 +99,9 @@ int main(int argc, char** argv) {
 		frame.resetMatrix();
 		
 		/*Draw ascii by coordinates of matrix*/
-		draw_frame(&frame);
+		frame.draw();
 		
+		//moving(&snake);
 		/*Start logic function which will check the all coordinates*/
 		logic(&map, &apple, &snake);
 		
@@ -109,12 +109,13 @@ int main(int argc, char** argv) {
 		snake.start();
 		
 		/*Frame per milliseconds*/
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	}
-	
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+	}	
 	gotoXY(0, max_y+1);
 	
 	std::cout << "Game over ;)" << std::endl;
+	
+	thread.join();
 	
 	return 0;
 }

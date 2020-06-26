@@ -34,6 +34,7 @@ class Snake{
 		void      setNewSnakePart           ();
 		void 	  setNewNumberOfEatenApples (const int _number);
 		void 	  setNewHeadPositionOfSnake (const int _x, const int _y);
+		void 	  setNewHeadDirectionOfSnake(const int _direction);
 		
 		void      start();
 	
@@ -58,6 +59,7 @@ class Snake{
 				
 				/*For moving the head*/
 				void  setNewPositionOfPart     (const int _x_pos, const int _y_pos, const int _const_set);
+				void  setNewDirectionOfPart	   (const int _direction);
 				
 				/*Some methods*/
 				//void  setCurrentPosition	   (const int _x_pos, const int _y_pos);
@@ -138,6 +140,10 @@ void Snake::setNewHeadPositionOfSnake (const int _x, const int _y){
 	this->body.at(0).setNewPositionOfPart(_x, _y, 1);
 }
 
+void Snake::setNewHeadDirectionOfSnake (const int _direction){
+	this->body.at(0).setNewDirectionOfPart(_direction);
+}
+
 /*Create head or some part of snake and set position and other needed value*/
 Snake::SnakePart::SnakePart(const int _id, const int _direction) : _id(_id), 
 																   next_position(new int[2]),
@@ -155,11 +161,11 @@ Snake::SnakePart::SnakePart(const int _id, const int _direction) : _id(_id),
 	else{
 		if(this->_direction == Direction::__up__){
 			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]-1;
+			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]+1;
 		}
 		else if(this->_direction == Direction::__down__){
 			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]+1;
+			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]-1;
 		}
 		else if(this->_direction == Direction::__left__){
 			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0]+1;
@@ -205,6 +211,10 @@ int Snake::SnakePart::getIdOfPart() const{
 	return this->_id;
 }
 
+void Snake::SnakePart::setNewDirectionOfPart(const int _direction){
+	this->_direction = _direction;
+}
+
 
 /*Set new position for snake part*/
 void Snake::SnakePart::setNewPositionOfPart(const int _x_pos = 0, const int _y_pos = 0, const int _const_set = 0){
@@ -235,9 +245,9 @@ void Snake::SnakePart::setNewPositionOfPart(const int _x_pos = 0, const int _y_p
 void Snake::start(){
 	/*Set new position for head*/
 	if(this->getDirection() == Direction::__up__){
-		this->body.at(0).setNewPositionOfPart(0, 1);
-	}else if(this->getDirection() == Direction::__down__){
 		this->body.at(0).setNewPositionOfPart(0, -1);
+	}else if(this->getDirection() == Direction::__down__){
+		this->body.at(0).setNewPositionOfPart(0, 1);
 	}else if(this->getDirection() == Direction::__left__){
 		this->body.at(0).setNewPositionOfPart(-1, 0);
 	}else{
