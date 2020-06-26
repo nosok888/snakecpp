@@ -33,19 +33,19 @@ void logic(Map* _map, Apple* _apple, Snake* _snake){
 	/*For checking board collision*/
 	if(_snake->getPositionOfSnakeParts(0)[0] == max_x-1 && _snake->getDirection() == Direction::__right__){
 		int _y = _snake->getPositionOfSnakeParts(0)[1];
-		_snake->setNewHeadPositionOfSnake(0, _y);
+		_snake->setNewHeadPositionOfSnake(-1, _y);
 		
-	}else if(_snake->getPositionOfSnakeParts(0)[0] == min_x+1 && _snake->getDirection() == Direction::__left__){
+	}else if(_snake->getPositionOfSnakeParts(0)[0] == min_x && _snake->getDirection() == Direction::__left__){
 		int _y = _snake->getPositionOfSnakeParts(0)[1];
-		_snake->setNewHeadPositionOfSnake(max_x-1, _y);
+		_snake->setNewHeadPositionOfSnake(max_x, _y);
 		
 	}else if(_snake->getPositionOfSnakeParts(0)[1] == max_y-1 && _snake->getDirection() == Direction::__down__){
 		int _x = _snake->getPositionOfSnakeParts(0)[0];
-		_snake->setNewHeadPositionOfSnake(_x, 0);
+		_snake->setNewHeadPositionOfSnake(_x, -1);
 		
-	}else if(_snake->getPositionOfSnakeParts(0)[1] == min_y+1 && _snake->getDirection() == Direction::__up__){
+	}else if(_snake->getPositionOfSnakeParts(0)[1] == min_y && _snake->getDirection() == Direction::__up__){
 		int _x = _snake->getPositionOfSnakeParts(0)[0];
-		_snake->setNewHeadPositionOfSnake(_x, max_y-1);
+		_snake->setNewHeadPositionOfSnake(_x, max_y);
 	}
 	
 	if(_snake->getPositionOfSnakeParts(0)[0] == _apple->getAppleCoordinations()[0] &&
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 
 	while(!::gameover){
 		/*Clear console*/		
-		system("cls");
+		//system("cls");
 		
 		/*Reset of created matrix of all coordinates of all objects such as Map, Snake and Apple*/
 		frame.resetMatrix();
@@ -109,7 +109,10 @@ int main(int argc, char** argv) {
 		snake.start();
 		
 		/*Frame per milliseconds*/
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		
+		gotoXY(0, max_y+1);
+		std::cout << "Count: " << snake.getNumberOfEatenApples() << std::endl;
 	}	
 	gotoXY(0, max_y+1);
 	
