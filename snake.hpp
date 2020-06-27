@@ -21,25 +21,28 @@ class Snake{
 	public:
 		Snake() = delete;
 		/*Create a body of snake*/
-		Snake(const int count_of_snake_part, const int _direction);
+		Snake(const int _count_of_snake_part, const int _direction, const int _max_snake_parts);
 		~Snake();
 		
 		
 		/*For getting some kind of info about parts of snake*/
-		const int* getPositionOfSnakeParts  (const int _id) const;
+		const int* getPositionOfSnakePart   (const int _id) const;
 		int        getNumberOfSnakeParts	() 			    const;
 		int  	   getDirection		        () 			    const;
 		int        getNumberOfEatenApples   () 			    const;
+		const int  getMaxSnakeParts			()				const;
 				
 		void      setNewSnakePart           ();
 		void 	  setNewNumberOfEatenApples (const int _number);
 		void 	  setNewHeadPositionOfSnake (const int _x, const int _y);
 		void 	  setNewHeadDirectionOfSnake(const int _direction);
 		
+		/*Moving of snake*/
 		void      start();
 	
 	private:
-		int apples_eaten;
+		int eaten_apples;
+		const int max_snake_parts;
 		
 		
 		/*|||||||||||||||||||||||||||||||||||||||||*/
@@ -58,7 +61,7 @@ class Snake{
 				int 		getIdOfPart				 () const;
 				
 				/*For moving the head*/
-				void  setNewPositionOfPart     (const int _x_pos, const int _y_pos, const int _const_set);
+				void  setNewPositionOfPart     (const int _x, const int _y, const int _replace_position);
 				void  setNewDirectionOfPart	   (const int _direction);
 				
 				/*Some methods*/
@@ -70,48 +73,51 @@ class Snake{
 				int* curr_position;
 				int* prev_position;
 				
-				int _direction;
+				int direction;
 				/*This is id of part if this id equ 0 if meens that is the head of snake*/
-				const int _id;
+				const int id;
 		};
 		/*|||||||||||||||||||||||||||||||||||||||||*/
 
 	/*Some methods which needs for getting access to SnakePart class*/
 	public:
+		/*All parts of the snake save in vector container*/
 		static std::vector<SnakePart> body;
 		/*This is a body of snake known as vector array*/
-		SnakePart* getSnakePart	(const int _id) const;
+		const SnakePart* getSnakePart (const int _id) const;
 		
 };
 
 /*Create the Snake*/
-Snake::Snake(const int count_of_snake_part, const int _direction){
+Snake::Snake(const int _count_of_snake_part, const int _direction, const int _max_snake_parts) : max_snake_parts(_max_snake_parts){
+	
+	Snake::body.reserve(_max_snake_parts);
 	
 	/*Create a head know as the first element of vector*/
 	Snake::body.push_back(Snake::SnakePart(Snake::body.size(), _direction));
 	
 	/*Create other parts of snake body know as other index of vector*/
-	for(int _iter=1; _iter<count_of_snake_part; ++_iter){
+	for(int _iter=1; _iter<_count_of_snake_part; ++_iter){
 		int _id = static_cast<int>(Snake::body.size());
 		Snake::body.push_back(Snake::SnakePart(_id, this->getDirection()));
 	}
 
-	this->apples_eaten = 0;
+	this->eaten_apples = 0;
 }
 
 /*For getting posotion of every part of body snake*/
-const int* Snake::getPositionOfSnakeParts(const int _id = 0) const{
-	return (Snake::body.at(_id)).getCurrentPositionOfPart();
+const int* Snake::getPositionOfSnakePart(const int _id = 0) const{
+	return (Snake::body[_id]).getCurrentPositionOfPart();
 }
 
 /*For getting count of eaten apples during playing*/
 int Snake::getNumberOfEatenApples() const{
-	return this->apples_eaten;
+	return this->eaten_apples;
 }
 
 /*For getting direction of the head*/
 int Snake::getDirection() const{
-	return (Snake::body.at(0)).getDirectionOfPart();
+	return Snake::body[0].getDirectionOfPart();
 }
 
 /*For getting count parts of snake*/
@@ -120,8 +126,8 @@ int Snake::getNumberOfSnakeParts() const{
 }
 
 /*For getting each part of snake*/
-Snake::SnakePart* Snake::getSnakePart(const int _id = 0) const{
-	return &(Snake::body.at(_id));
+const Snake::SnakePart* Snake::getSnakePart(const int _id = 0) const{
+	return &(Snake::body[_id]);
 }
 
 /*For creating a new part of snake body*/
@@ -132,24 +138,30 @@ void Snake::setNewSnakePart(){
 
 /*For setting count of eaten apples by snake*/
 void Snake::setNewNumberOfEatenApples(const int _number){
-	this->apples_eaten+=_number;
+	this->eaten_apples+=_number;
 }
 
 /*Setting a new position for head*/
 void Snake::setNewHeadPositionOfSnake (const int _x, const int _y){
-	this->body.at(0).setNewPositionOfPart(_x, _y, 1);
+	this->body[0].setNewPositionOfPart(_x, _y, 1);
 }
 
+/*I hope name of this function says you more then i am ;)*/
 void Snake::setNewHeadDirectionOfSnake (const int _direction){
-	this->body.at(0).setNewDirectionOfPart(_direction);
+	this->body[0].setNewDirectionOfPart(_direction);
 }
+
+const int Snake::getMaxSnakeParts() const{
+	return this->max_snake_parts;
+}
+
 
 /*Create head or some part of snake and set position and other needed value*/
-Snake::SnakePart::SnakePart(const int _id, const int _direction) : _id(_id), 
+Snake::SnakePart::SnakePart(const int _id, const int _direction) : id(_id), 
 																   next_position(new int[2]),
 													   			   curr_position(new int[2]),
 													   			   prev_position(new int[2]){
-	this->_direction = _direction;
+	this->direction = _direction;
 	
 	if(_id == 0){
 		this->curr_position[0] = START_POSITION_X;
@@ -159,29 +171,29 @@ Snake::SnakePart::SnakePart(const int _id, const int _direction) : _id(_id),
 		this->next_position[1] = START_POSITION_Y;
 	}
 	else{
-		if(this->_direction == Direction::__up__){
-			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]+1;
+		if(this->direction == Direction::__up__){
+			this->curr_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0];
+			this->curr_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1]+1;
 		}
-		else if(this->_direction == Direction::__down__){
-			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]-1;
+		else if(this->direction == Direction::__down__){
+			this->curr_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0];
+			this->curr_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1]-1;
 		}
-		else if(this->_direction == Direction::__left__){
-			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0]+1;
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1];
+		else if(this->direction == Direction::__left__){
+			this->curr_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0]+1;
+			this->curr_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1];
 		}
-		else if(this->_direction == Direction::__right__){
-			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0]-1;
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1];
+		else if(this->direction == Direction::__right__){
+			this->curr_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0]-1;
+			this->curr_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1];
 		}
 		else{
-			this->curr_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-			this->curr_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1]-1;
+			this->curr_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0];
+			this->curr_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1]-1;
 		}
 		
-		this->next_position[0] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[0];
-		this->next_position[1] = ( Snake::body.at(_id-1) ).getCurrentPositionOfPart()[1];
+		this->next_position[0] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[0];
+		this->next_position[1] = ( Snake::body[_id-1] ).getCurrentPositionOfPart()[1];
 	}
 }
 
@@ -202,36 +214,36 @@ const int* Snake::SnakePart::getPrevPositionOfPart() const{
 
 /*For getting direction value of the current SnakePart*/
 int Snake::SnakePart::getDirectionOfPart() const{
-	return this->_direction;
+	return this->direction;
 }
 
 /*For getting ID value of the current SnakePart
 If ID == 0 it meens that is the head of snake*/
 int Snake::SnakePart::getIdOfPart() const{
-	return this->_id;
+	return this->id;
 }
 
 void Snake::SnakePart::setNewDirectionOfPart(const int _direction){
-	this->_direction = _direction;
+	this->direction = _direction;
 }
 
 
 /*Set new position for snake part*/
-void Snake::SnakePart::setNewPositionOfPart(const int _x_pos = 0, const int _y_pos = 0, const int _const_set = 0){
-	if(this->_id == 0 && _const_set == 0){
+void Snake::SnakePart::setNewPositionOfPart(const int _x = 0, const int _y = 0, const int _replace_position = 0){
+	if(this->id == 0 && _replace_position == 0){
 		
-		(this->next_position[0]) += _x_pos;
-		(this->next_position[1]) += _y_pos;
+		(this->next_position[0]) += _x;
+		(this->next_position[1]) += _y;
 		
-	}else if(this->_id == 0 && _const_set == 1){
+	}else if(this->id == 0 && _replace_position == 1){
 		
-		(this->next_position[0]) = _x_pos;
-		(this->next_position[1]) = _y_pos;
+		(this->next_position[0]) = _x;
+		(this->next_position[1]) = _y;
 		
 	}else{
 		
-		(this->next_position[0]) = ( Snake::body.at( (this->_id)-1 ) ).getPrevPositionOfPart()[0];
-		(this->next_position[1]) = ( Snake::body.at( (this->_id)-1 ) ).getPrevPositionOfPart()[1];	
+		(this->next_position[0]) = ( Snake::body[ (this->id)-1 ] ).getPrevPositionOfPart()[0];
+		(this->next_position[1]) = ( Snake::body[ (this->id)-1 ] ).getPrevPositionOfPart()[1];	
 		
 	}
 	
@@ -242,20 +254,21 @@ void Snake::SnakePart::setNewPositionOfPart(const int _x_pos = 0, const int _y_p
 	this->curr_position[1] = this->next_position[1];
 }
 
+/*Moving of snake function*/
 void Snake::start(){
 	/*Set new position for head*/
 	if(this->getDirection() == Direction::__up__){
-		this->body.at(0).setNewPositionOfPart(0, -1);
+		this->body[0].setNewPositionOfPart(0, -1);
 	}else if(this->getDirection() == Direction::__down__){
-		this->body.at(0).setNewPositionOfPart(0, 1);
+		this->body[0].setNewPositionOfPart(0, 1);
 	}else if(this->getDirection() == Direction::__left__){
-		this->body.at(0).setNewPositionOfPart(-1, 0);
+		this->body[0].setNewPositionOfPart(-1, 0);
 	}else{
-		this->body.at(0).setNewPositionOfPart(1, 0);
+		this->body[0].setNewPositionOfPart(1, 0);
 	}
 	
 	for(int _iter_of_parts = 1; _iter_of_parts < this->getNumberOfSnakeParts(); ++_iter_of_parts){
-		this->body.at(_iter_of_parts).setNewPositionOfPart();
+		this->body[_iter_of_parts].setNewPositionOfPart();
 	}
 	
 }

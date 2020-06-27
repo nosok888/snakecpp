@@ -3,6 +3,10 @@
 	
 	#include <vector>
 
+	#define snake_body_syb 'o'
+	#define snake_head_syb 'O'
+	#define apple_syb '@'
+	#define empty_syb '.'
 
 HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 COORD CursorPosition;
@@ -23,9 +27,9 @@ void gotoXY(int x, int y){
 class Frame{
 	private:
 		void inline setFrameMatrix();
-		const Map* _map;
-		const Apple* _apple;
-		const Snake* _snake;
+		const Map* map;
+		const Apple* apple;
+		const Snake* snake;
 		
 	public:
 		class DrawPoint{
@@ -33,7 +37,7 @@ class Frame{
 				DrawPoint() = delete;
 				DrawPoint(const int _x, const int _y, const int _ascii);
 				
-				int* getCoordinates() const;
+				const int* getCoordinates() const;
 				int  getAsciiSymbol() const;
 				void setCoordinates(const int _x, const int _y);
 				void setAsciiSymbol(const int _ascii);
@@ -57,25 +61,25 @@ class Frame{
 /*----------------------------------------------------------------------------*/
 void inline Frame::setFrameMatrix(){
 	/*get Map coordinates*/
-	std::vector<Map::Matrix::Point> map = this->_map->getMatrixOfPoint();
+	std::vector<Map::Matrix::Point> map = this->map->getMatrixOfPoint();
 	for(int _iter = 0; _iter < map.size(); ++_iter){
-		Frame::frame.push_back(DrawPoint(map[_iter].getCoordinatesOfPoint()[0], map[_iter].getCoordinatesOfPoint()[1], '.'));
+		Frame::frame.push_back(DrawPoint(map[_iter].getCoordinatesOfPoint()[0], map[_iter].getCoordinatesOfPoint()[1], empty_syb));
 	}
 	
 	/*get Apple coordinates*/
-	Frame::frame.push_back(DrawPoint(this->_apple->getAppleCoordinations()[0], this->_apple->getAppleCoordinations()[1], '@'));
+	Frame::frame.push_back(DrawPoint(this->apple->getAppleCoordinations()[0], this->apple->getAppleCoordinations()[1], apple_syb));
 	
 	/*get Snake cordinates*/
-	for(int _iter=0; _iter<this->_snake->getNumberOfSnakeParts(); ++_iter){
-		if(this->_snake->getSnakePart(_iter)->getIdOfPart() == 0){
-			Frame::frame.push_back(DrawPoint(this->_snake->getPositionOfSnakeParts(_iter)[0], this->_snake->getPositionOfSnakeParts(_iter)[1], 'O'));
+	for(int _iter=0; _iter<this->snake->getNumberOfSnakeParts(); ++_iter){
+		if(this->snake->getSnakePart(_iter)->getIdOfPart() == 0){
+			Frame::frame.push_back(DrawPoint(this->snake->getPositionOfSnakePart(_iter)[0], this->snake->getPositionOfSnakePart(_iter)[1], snake_head_syb));
 		}else{
-			Frame::frame.push_back(DrawPoint(this->_snake->getPositionOfSnakeParts(_iter)[0], this->_snake->getPositionOfSnakeParts(_iter)[1], 'o'));
+			Frame::frame.push_back(DrawPoint(this->snake->getPositionOfSnakePart(_iter)[0], this->snake->getPositionOfSnakePart(_iter)[1], snake_body_syb));
 		}
 	}
 }
 
-Frame::Frame(const Map* _map, const Apple* _apple, const Snake* _snake) : _map(_map), _apple(_apple), _snake(_snake){
+Frame::Frame(const Map* _map, const Apple* _apple, const Snake* _snake) : map(_map), apple(_apple), snake(_snake){
 	this->setFrameMatrix();
 }
 
@@ -104,7 +108,7 @@ Frame::DrawPoint::DrawPoint(const int _x, const int _y, const int _ascii) : coor
 	this->symbol = _ascii;
 }
 
-int* Frame::DrawPoint::getCoordinates() const{
+const int* Frame::DrawPoint::getCoordinates() const{
 	return this->coordinates;
 }
 
